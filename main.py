@@ -1,6 +1,7 @@
 import torch
 import wandb
 from torch import optim, nn
+import torchvision.models as models
 
 from src.features.build_features import MyAwesomeModel as Mymodel
 from src.models import train_model
@@ -17,7 +18,8 @@ def train(sweep=True):
     # model = fc_model.Network(784, 10, [512, 256, 128])
     
     # Own model
-    model = Mymodel()
+    # model = Mymodel()
+    model = models.vgg19(pretrained=True)
     # Freeze training for all "features" layers in the VGG16 model
     for param in model.features.parameters():
         param.requires_grad = False
