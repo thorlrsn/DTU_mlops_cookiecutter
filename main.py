@@ -27,7 +27,7 @@ def train(sweep=True):
 
     elif sweep is False:
         # # Old wandb config
-        args = {"batch_size": 64,  # try log-spaced values from 1 to 50,000
+        args = {"batch_size": 4,  # try log-spaced values from 1 to 50,000
             "num_workers": 2,  # try 0, 1, and 2
             "pin_memory": False,  # try False and True
             "precision": 32,  # try 16 and 32
