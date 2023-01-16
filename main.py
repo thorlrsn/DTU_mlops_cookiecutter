@@ -11,6 +11,7 @@ from torch.utils.data import Dataset, random_split, DataLoader
 from src.data.make_dataset import MyDataset
 import torchvision.transforms as transforms
 import matplotlib.pyplot as plt
+
 def train(sweep=True):
     device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 
@@ -52,7 +53,7 @@ def train(sweep=True):
             "precision": 32,  # try 16 and 32
             "optimizer": "Adadelta",  # try optim.Adadelta and optim.SGD
             "lr": 0.01,
-            "epochs": 10,
+            "epochs": 20,
             }
         wandb.init(config=args)
         wandb.watch(model, log_freq=100)
@@ -130,10 +131,10 @@ def train(sweep=True):
     train_model.train(model, trainloader, testloader, criterion, optimizer, epochs, wandb_log=True)
 
     # Exporting table to wandb with sampled images, preditions and truths
-    wandb_table(model, testloader)
+    # wandb_table(model, testloader)
 
     # Saving model
-    # save_checkpoint(model)
+    save_checkpoint(model)
 
 def evaluate(model_checkpoint):
     print("Evaluating...")
@@ -165,10 +166,10 @@ def load_checkpoint(filepath):
 def save_checkpoint(model):
     # Giving values but they are not used.
     checkpoint = {'input_size': 1,
-              'output_size': 10,
+              'output_size': 120,
               'state_dict': model.state_dict()}
 
-    torch.save(checkpoint, 'checkpoint.pth')
+    torch.save(checkpoint, 'model_v1_0.pth')
 
 def wandb_table(model, testloader):
     example_images = []
