@@ -58,3 +58,16 @@ Project Organization
 --------
 
 <p><small>Project based on the <a target="_blank" href="https://drivendata.github.io/cookiecutter-data-science/">cookiecutter data science project template</a>. #cookiecutterdatascience</small></p>
+
+----
+
+outs:
+- md5: 82e613a60caf4330726ce914926231e5.dir
+  size: 471012745
+  nfiles: 15
+  path: data
+
+[core]
+    remote = remote_storage
+['remote "remote_storage"']
+    url = gs://dtu-cookiecutter/
