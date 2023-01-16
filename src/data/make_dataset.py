@@ -39,10 +39,10 @@ def mnist(path):
   
     return train_data, test_data
 
-if __name__ == "__main__":
-    input_path = "data/external/"
-    output_path = "data/processed/"
+# if __name__ == "__main__":
+#     input_path = "data/external/"
+#     output_path = "data/processed/"
 
-    train_data, test_data = mnist(input_path)
-    torch.save(train_data, output_path + 'train_tensor.pt', pickle_protocol=True, pickle_module=dill)
-    torch.save(test_data, output_path + 'test_tensor.pt', pickle_protocol=True, pickle_module=dill)
+#     train_data, test_data = mnist(input_path)
+    # torch.save(train_data, output_path + 'train_tensor.pt', pickle_protocol=True, pickle_module=dill)
+    # torch.save(test_data, output_path + 'test_tensor.pt', pickle_protocol=True, pickle_module=dill)

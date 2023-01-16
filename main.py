@@ -6,7 +6,7 @@ from torch.utils.data import Dataset, DataLoader
 from src.features.build_features import MyAwesomeModel as Mymodel
 from src.models import train_model
 import dill
-
+from src.data.make_dataset import mnist
 def train(sweep=True):
     device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 
@@ -46,8 +46,10 @@ def train(sweep=True):
     optimizer = optim.Adam(model.parameters(), lr=lr)
     
     # train_set, test_set = mnist(_PATH_DATA)
-    train_set = torch.load("data/processed/train_tensor.pt")#, pickle_module=dill)
-    test_set = torch.load("data/processed/test_tensor.pt")#, pickle_module=dill)
+    # train_set = torch.load("data/processed/train_tensor.pt", pickle_module=dill)
+    # test_set = torch.load("data/processed/test_tensor.pt", pickle_module=dill)
+    train_set, test_set = mnist('data/external/')
+    
     trainloader = DataLoader(dataset=train_set, batch_size=bs, shuffle=True, pin_memory=True, num_workers=num_workers)
     testloader = DataLoader(dataset=test_set, batch_size=bs, shuffle=True, pin_memory=True, num_workers=num_workers)
    
