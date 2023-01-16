@@ -43,7 +43,7 @@ def train(sweep=True):
 
     criterion = nn.CrossEntropyLoss()
     optimizer = optim.Adam(model.parameters(), lr=lr)
-
+    
     # train_set, test_set = mnist(_PATH_DATA)
     train_set = torch.load("data/processed/train_tensor.pt", pickle_module=dill)
     test_set = torch.load("data/processed/test_tensor.pt", pickle_module=dill)
@@ -152,7 +152,7 @@ if __name__ == "__main__":
     ##################################
     #### Define sweep or no sweep ####
     ##################################
-    sweep = True
+    sweep = False
 
     if sweep is False:
         train(sweep)
