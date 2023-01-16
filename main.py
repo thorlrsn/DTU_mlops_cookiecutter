@@ -20,14 +20,18 @@ def train(sweep=True):
     # Own model
     # model = Mymodel()
     model = models.resnet152(pretrained=True)
+    num_ftrs = model.fc.in_features
+    # Here the size of each output sample is set to 2.
+    # Alternatively, it can be generalized to nn.Linear(num_ftrs, len(class_names)).
+    model.fc = nn.Linear(num_ftrs, 120)
     # Freeze training for all "features" layers in the VGG16 model
-    for param in model.features.parameters():
-        param.requires_grad = False
+    # for param in model.features.parameters():
+    #     param.requires_grad = False
         
     # Map last layer of VGG19 model to new linear layer
     # with output of number of dog breed classes.
-    n_inputs = model.classifier[6].in_features
-    model.classifier[6] = nn.Linear(n_inputs, 120)
+    # n_inputs = model.classifier[6].in_features
+    # model.classifier[6] = nn.Linear(n_inputs, 120)
 
     # after completing your model, if GPU is available, move the model to GPU
     model.to(device)
@@ -59,8 +63,7 @@ def train(sweep=True):
 
     criterion = nn.CrossEntropyLoss()
     # optimizer = optim.Adam(model.parameters(), lr=lr)
-    optimizer = optim.SGD(model.classifier.parameters(), lr=0.0025)    
-    # train_set, test_set = mnist(_PATH_DATA)
+    optimizer = optim.SGD(model.parameters(), lr=0.001, momentum=0.9)    # train_set, test_set = mnist(_PATH_DATA)
     # train_set = torch.load("data/processed/train_tensor.pt", pickle_module=dill)
     # test_set = torch.load("data/processed/test_tensor.pt", pickle_module=dill)
     dataset = ImageFolder('data/processed/images')
