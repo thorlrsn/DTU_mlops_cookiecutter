@@ -19,6 +19,7 @@ def train(model, trainloader, testloader, criterion, optimizer=None, epochs=5, p
             steps += 1
             images = images.float()
             labels = labels.long()
+            
             if torch.cuda.is_available():
                 images = images.cuda()
                 labels = labels.cuda()

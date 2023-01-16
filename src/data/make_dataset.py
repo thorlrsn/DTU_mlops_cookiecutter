@@ -23,6 +23,7 @@ def mnist(path):
                 self.imgs = data['images']
                 self.imgs = torch.tensor(self.imgs).reshape(-1, 1, 28, 28)
                 self.labels = data['labels']
+            print(self.imgs.shape[0])
 
         def __len__(self):
             return self.imgs.shape[0]
