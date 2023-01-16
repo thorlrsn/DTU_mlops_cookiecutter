@@ -1,18 +1,21 @@
 import torch
 import wandb
 from torch import optim, nn
-from torch.utils.data import Dataset, DataLoader
 
 from src.features.build_features import MyAwesomeModel as Mymodel
 from src.models import train_model
 import dill
-from src.data.make_dataset import mnist
+from torchvision.datasets import ImageFolder
+from torch.utils.data import Dataset, random_split, DataLoader
+from src.data.make_dataset import MyDataset
+import torchvision.transforms as transforms
+
 def train(sweep=True):
     device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 
     # Given model
     # model = fc_model.Network(784, 10, [512, 256, 128])
-
+    
     # Own model
     model = Mymodel()
     model.to(device)
@@ -48,10 +51,54 @@ def train(sweep=True):
     # train_set, test_set = mnist(_PATH_DATA)
     # train_set = torch.load("data/processed/train_tensor.pt", pickle_module=dill)
     # test_set = torch.load("data/processed/test_tensor.pt", pickle_module=dill)
-    train_set, test_set = mnist('data/external/')
-    
-    trainloader = DataLoader(dataset=train_set, batch_size=bs, shuffle=True, pin_memory=True, num_workers=num_workers)
-    testloader = DataLoader(dataset=test_set, batch_size=bs, shuffle=True, pin_memory=True, num_workers=num_workers)
+    dataset = ImageFolder('data/processed/images')
+
+    random_seed = 45
+    torch.manual_seed(random_seed);
+
+    test_pct = 0.3
+    test_size = int(len(dataset)*test_pct)
+    dataset_size = len(dataset) - test_size
+
+    val_pct = 0.1
+    val_size = int(dataset_size*val_pct)
+    train_size = dataset_size - val_size
+
+    train_ds, val_ds, test_ds = random_split(dataset, [train_size, val_size, test_size])
+    imagenet_stats = ([0.485, 0.456, 0.406], [0.229, 0.224, 0.225])
+
+    train_transform = transforms.Compose([
+    #    transforms.Resize((224, 224)),
+        transforms.Resize((256, 256)),
+        transforms.RandomCrop(224, padding=4, padding_mode='reflect'),
+        transforms.RandomHorizontalFlip(p=0.3),
+        transforms.RandomRotation(degrees=30),
+        transforms.ToTensor(),
+    #    transforms.Normalize(*imagenet_stats, inplace=True)
+        
+    ])
+
+
+    val_transform = transforms.Compose([
+        transforms.Resize((224,224)),
+        transforms.ToTensor(),
+    #    transforms.Normalize(*imagenet_stats, inplace=True)
+    ])
+
+    test_transform = transforms.Compose([
+        transforms.Resize((224,224)), 
+        transforms.ToTensor(),
+    #    transforms.Normalize(*imagenet_stats, inplace=True)
+    ])
+
+    train_dataset = MyDataset(train_ds, train_transform)
+    val_dataset = MyDataset(val_ds, val_transform)
+    test_dataset = MyDataset(test_ds, test_transform)
+
+
+
+    trainloader = DataLoader(dataset=train_dataset, batch_size=bs, shuffle=True, pin_memory=True, num_workers=num_workers)
+    testloader = DataLoader(dataset=val_dataset, batch_size=bs, shuffle=False, pin_memory=True, num_workers=num_workers)
    
     # Given training
     # fc_model.train(model, train_set, test_set, criterion, optimizer, epochs=2)
@@ -151,7 +198,10 @@ def sweep_config():
     # wandb.init()
     return sweep_id
 
+
+
 if __name__ == "__main__":  
+    
     ##################################
     #### Define sweep or no sweep ####
     ##################################
