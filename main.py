@@ -47,8 +47,8 @@ def train(sweep=True):
     # train_set, test_set = mnist(_PATH_DATA)
     train_set = torch.load("data/processed/train_tensor.pt", pickle_module=dill)
     test_set = torch.load("data/processed/test_tensor.pt", pickle_module=dill)
-    trainloader = DataLoader(dataset=train_set, batch_size=bs, shuffle=True, pin_memory=False)
-    testloader = DataLoader(dataset=test_set, batch_size=bs, shuffle=True, pin_memory=False)
+    trainloader = DataLoader(dataset=train_set, batch_size=bs, shuffle=True, pin_memory=False, num_workers=0)
+    testloader = DataLoader(dataset=test_set, batch_size=bs, shuffle=True, pin_memory=False, num_workers=0)
    
     # Given training
     # fc_model.train(model, train_set, test_set, criterion, optimizer, epochs=2)
