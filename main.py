@@ -28,7 +28,7 @@ def train(sweep=True):
     elif sweep is False:
         # # Old wandb config
         args = {"batch_size": 4,  # try log-spaced values from 1 to 50,000
-            "num_workers": 2,  # try 0, 1, and 2
+            "num_workers": 0,  # try 0, 1, and 2
             "pin_memory": False,  # try False and True
             "precision": 32,  # try 16 and 32
             "optimizer": "Adadelta",  # try optim.Adadelta and optim.SGD
@@ -40,6 +40,7 @@ def train(sweep=True):
         bs = wandb.config.batch_size
         lr  = wandb.config.lr
         epochs = wandb.config.epochs
+        num_workers = wandb.config.num_workers
 
     criterion = nn.CrossEntropyLoss()
     optimizer = optim.Adam(model.parameters(), lr=lr)
@@ -47,8 +48,8 @@ def train(sweep=True):
     # train_set, test_set = mnist(_PATH_DATA)
     train_set = torch.load("data/processed/train_tensor.pt", pickle_module=dill)
     test_set = torch.load("data/processed/test_tensor.pt", pickle_module=dill)
-    trainloader = DataLoader(dataset=train_set, batch_size=bs, shuffle=True, pin_memory=False, num_workers=0)
-    testloader = DataLoader(dataset=test_set, batch_size=bs, shuffle=True, pin_memory=False, num_workers=0)
+    trainloader = DataLoader(dataset=train_set, batch_size=bs, shuffle=True, pin_memory=True, num_workers=num_workers)
+    testloader = DataLoader(dataset=test_set, batch_size=bs, shuffle=True, pin_memory=True, num_workers=num_workers)
    
     # Given training
     # fc_model.train(model, train_set, test_set, criterion, optimizer, epochs=2)
