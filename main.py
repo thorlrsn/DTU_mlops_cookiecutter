@@ -29,7 +29,7 @@ def train(sweep=True):
         # # Old wandb config
         args = {"batch_size": 4,  # try log-spaced values from 1 to 50,000
             "num_workers": 0,  # try 0, 1, and 2
-            "pin_memory": False,  # try False and True
+            "pin_memory": True,  # try False and True
             "precision": 32,  # try 16 and 32
             "optimizer": "Adadelta",  # try optim.Adadelta and optim.SGD
             "lr": 0.001,
@@ -46,8 +46,8 @@ def train(sweep=True):
     optimizer = optim.Adam(model.parameters(), lr=lr)
     
     # train_set, test_set = mnist(_PATH_DATA)
-    train_set = torch.load("data/processed/train_tensor.pt", pickle_module=dill)
-    test_set = torch.load("data/processed/test_tensor.pt", pickle_module=dill)
+    train_set = torch.load("data/processed/train_tensor.pt")#, pickle_module=dill)
+    test_set = torch.load("data/processed/test_tensor.pt")#, pickle_module=dill)
     trainloader = DataLoader(dataset=train_set, batch_size=bs, shuffle=True, pin_memory=True, num_workers=num_workers)
     testloader = DataLoader(dataset=test_set, batch_size=bs, shuffle=True, pin_memory=True, num_workers=num_workers)
    
