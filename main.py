@@ -9,7 +9,7 @@ from torchvision.datasets import ImageFolder
 from torch.utils.data import Dataset, random_split, DataLoader
 from src.data.make_dataset import MyDataset
 import torchvision.transforms as transforms
-
+import matplotlib.pyplot as plt
 def train(sweep=True):
     device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 
@@ -18,6 +18,16 @@ def train(sweep=True):
     
     # Own model
     model = Mymodel()
+    # Freeze training for all "features" layers in the VGG16 model
+    for param in model.features.parameters():
+        param.requires_grad = False
+        
+    # Map last layer of VGG19 model to new linear layer
+    # with output of number of dog breed classes.
+    n_inputs = model.classifier[6].in_features
+    model.classifier[6] = nn.Linear(n_inputs, 120)
+
+    # after completing your model, if GPU is available, move the model to GPU
     model.to(device)
     
     if sweep is True:
@@ -30,12 +40,12 @@ def train(sweep=True):
 
     elif sweep is False:
         # # Old wandb config
-        args = {"batch_size": 4,  # try log-spaced values from 1 to 50,000
+        args = {"batch_size": 64,  # try log-spaced values from 1 to 50,000
             "num_workers": 0,  # try 0, 1, and 2
             "pin_memory": True,  # try False and True
             "precision": 32,  # try 16 and 32
             "optimizer": "Adadelta",  # try optim.Adadelta and optim.SGD
-            "lr": 0.001,
+            "lr": 0.01,
             "epochs": 3,
             }
         wandb.init(config=args)
@@ -46,8 +56,8 @@ def train(sweep=True):
         num_workers = wandb.config.num_workers
 
     criterion = nn.CrossEntropyLoss()
-    optimizer = optim.Adam(model.parameters(), lr=lr)
-    
+    # optimizer = optim.Adam(model.parameters(), lr=lr)
+    optimizer = torch.optim.SGD
     # train_set, test_set = mnist(_PATH_DATA)
     # train_set = torch.load("data/processed/train_tensor.pt", pickle_module=dill)
     # test_set = torch.load("data/processed/test_tensor.pt", pickle_module=dill)
@@ -65,11 +75,18 @@ def train(sweep=True):
     train_size = dataset_size - val_size
 
     train_ds, val_ds, test_ds = random_split(dataset, [train_size, val_size, test_size])
+
+    # img, label = train_ds[6]
+    # print(dataset.classes[label])
+    # plt.imshow(img)
+    # print(type(img))
+    # print(label)
+    # plt.show()
     imagenet_stats = ([0.485, 0.456, 0.406], [0.229, 0.224, 0.225])
 
     train_transform = transforms.Compose([
     #    transforms.Resize((224, 224)),
-        transforms.Resize((256, 256)),
+        transforms.Resize((224, 224)),
         transforms.RandomCrop(224, padding=4, padding_mode='reflect'),
         transforms.RandomHorizontalFlip(p=0.3),
         transforms.RandomRotation(degrees=30),

@@ -10,13 +10,16 @@ def train(model, trainloader, testloader, criterion, optimizer=None, epochs=5, p
     steps = 0
     running_loss = 0
     loss_total = []    
-
+    total_len = len(trainloader)
+    total_count = 0
     for e in range(epochs):
         # Model in training mode, dropout is on
         model.train()
 
         for images, labels in trainloader:
             steps += 1
+            total_count += 1
+
             images = images.float()
             labels = labels.long()
             
@@ -42,6 +45,7 @@ def train(model, trainloader, testloader, criterion, optimizer=None, epochs=5, p
                     test_loss, accuracy = validation(model, testloader, criterion)
                 
                 print("Epoch: {}/{}.. ".format(e+1, epochs),
+                      "Progress: {:.2f}.. ".format(total_count/total_len),
                       "Training Loss: {:.3f}.. ".format(running_loss/print_every),
                       "Test Loss: {:.3f}.. ".format(test_loss/len(testloader)),
                       "Test Accuracy: {:.3f}".format(accuracy/len(testloader)))

@@ -29,7 +29,7 @@ class MyAwesomeModel(nn.Module):
     def __init__(self):
         super().__init__()
         # torchvision.models.ResNet18_Weights
-        self.network = models.resnet34(weights=torchvision.models.ResNet34_Weights.DEFAULT)
+        self.network = models.inception_v3(weights=torchvision.models.Inception_V3_Weights.DEFAULT)#  ResNet34_Weights.DEFAULT)
         # Replace last layer
         num_ftrs = self.network.fc.in_features
         self.network.fc = nn.Sequential(
