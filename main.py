@@ -19,7 +19,7 @@ def train(sweep=True):
     
     # Own model
     # model = Mymodel()
-    model = models.vgg19(pretrained=True)
+    model = models.resnet152(pretrained=True)
     # Freeze training for all "features" layers in the VGG16 model
     for param in model.features.parameters():
         param.requires_grad = False
@@ -48,7 +48,7 @@ def train(sweep=True):
             "precision": 32,  # try 16 and 32
             "optimizer": "Adadelta",  # try optim.Adadelta and optim.SGD
             "lr": 0.01,
-            "epochs": 3,
+            "epochs": 10,
             }
         wandb.init(config=args)
         wandb.watch(model, log_freq=100)
