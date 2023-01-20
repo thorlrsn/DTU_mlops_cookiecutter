@@ -3,6 +3,7 @@ import wandb
 
 from src.models.predict_model import validation
 
+
 def train(model, trainloader, testloader, criterion, optimizer=None, epochs=5, print_every=40, wandb_log=False):
     # if optimizer is None:
     #     optimizer = torch.optim.Adam(model.parameters(), lr=1e-2)

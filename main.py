@@ -19,22 +19,8 @@ def train(sweep=True):
     # model = fc_model.Network(784, 10, [512, 256, 128])
     
     # Own model
-    # model = Mymodel()
-    model = models.resnet152(pretrained=True)
-    num_ftrs = model.fc.in_features
-    # Here the size of each output sample is set to 2.
-    # Alternatively, it can be generalized to nn.Linear(num_ftrs, len(class_names)).
-    model.fc = nn.Linear(num_ftrs, 120)
-    # Freeze training for all "features" layers in the VGG16 model
-    # for param in model.features.parameters():
-    #     param.requires_grad = False
-        
-    # Map last layer of VGG19 model to new linear layer
-    # with output of number of dog breed classes.
-    # n_inputs = model.classifier[6].in_features
-    # model.classifier[6] = nn.Linear(n_inputs, 120)
-
-    # after completing your model, if GPU is available, move the model to GPU
+    model = Mymodel()
+    
     model.to(device)
     
     if sweep is True:
@@ -53,7 +39,7 @@ def train(sweep=True):
             "precision": 32,  # try 16 and 32
             "optimizer": "Adadelta",  # try optim.Adadelta and optim.SGD
             "lr": 0.01,
-            "epochs": 20,
+            "epochs": 5,
             }
         wandb.init(config=args)
         wandb.watch(model, log_freq=100)
@@ -65,67 +51,17 @@ def train(sweep=True):
     criterion = nn.CrossEntropyLoss()
     # optimizer = optim.Adam(model.parameters(), lr=lr)
     optimizer = optim.SGD(model.parameters(), lr=0.001, momentum=0.9)    # train_set, test_set = mnist(_PATH_DATA)
-    # train_set = torch.load("data/processed/train_tensor.pt", pickle_module=dill)
-    # test_set = torch.load("data/processed/test_tensor.pt", pickle_module=dill)
-    dataset = ImageFolder('data/processed/images')
 
-    random_seed = 45
-    torch.manual_seed(random_seed);
+    # dataset = 'data'
+    train_path = "data/train_"
+    test_path = "data/test.npz"
 
-    test_pct = 0.3
-    test_size = int(len(dataset)*test_pct)
-    dataset_size = len(dataset) - test_size
-
-    val_pct = 0.1
-    val_size = int(dataset_size*val_pct)
-    train_size = dataset_size - val_size
-
-    train_ds, val_ds, test_ds = random_split(dataset, [train_size, val_size, test_size])
-
-    # img, label = train_ds[6]
-    # print(dataset.classes[label])
-    # plt.imshow(img)
-    # print(type(img))
-    # print(label)
-    # plt.show()
-    imagenet_stats = ([0.485, 0.456, 0.406], [0.229, 0.224, 0.225])
-
-    train_transform = transforms.Compose([
-    #    transforms.Resize((224, 224)),
-        transforms.Resize((224, 224)),
-        transforms.RandomCrop(224, padding=4, padding_mode='reflect'),
-        transforms.RandomHorizontalFlip(p=0.3),
-        transforms.RandomRotation(degrees=30),
-        transforms.ToTensor(),
-    #    transforms.Normalize(*imagenet_stats, inplace=True)
-        
-    ])
-
-
-    val_transform = transforms.Compose([
-        transforms.Resize((224,224)),
-        transforms.ToTensor(),
-    #    transforms.Normalize(*imagenet_stats, inplace=True)
-    ])
-
-    test_transform = transforms.Compose([
-        transforms.Resize((224,224)), 
-        transforms.ToTensor(),
-    #    transforms.Normalize(*imagenet_stats, inplace=True)
-    ])
-
-    train_dataset = MyDataset(train_ds, train_transform)
-    val_dataset = MyDataset(val_ds, val_transform)
-    test_dataset = MyDataset(test_ds, test_transform)
-
-
+    train_dataset = MyDataset(train_path, train=True)
+    val_dataset = MyDataset(test_path, train=False)
 
     trainloader = DataLoader(dataset=train_dataset, batch_size=bs, shuffle=True, pin_memory=True, num_workers=num_workers)
     testloader = DataLoader(dataset=val_dataset, batch_size=bs, shuffle=False, pin_memory=True, num_workers=num_workers)
    
-    # Given training
-    # fc_model.train(model, train_set, test_set, criterion, optimizer, epochs=2)
-
     # Own training (The same as the given, since its pretty awesome)
     print("Training...")
     train_model.train(model, trainloader, testloader, criterion, optimizer, epochs, wandb_log=True)
@@ -205,16 +141,18 @@ def wandb_table(model, testloader):
 
 def sweep_config():
     sweep_configuration = {
-        'method': 'random',
-        'name': 'sweep',
-        'metric': {'goal': 'maximize', 'name': 'val_acc'},
-        'parameters': 
-        {
-            'batch_size': {'values': [16, 32, 64]},
-            'epochs': {'values': [1, 3, 5]},
-            'lr': {'max': 0.001, 'min': 0.0001}
-        }
+    'method': 'random',
+    'name': 'sweep',
+    'metric': {
+        'goal': 'minimize', 
+        'name': 'test_loss'
+		},
+    'parameters': {
+        'batch_size': {'values': [32, 64, 128]},
+        'epochs': {'values': [2, 5, 10]},
+        'lr': {'max': 0.1, 'min': 0.0001}
     }
+}
 
     # Initialize sweep by passing in config. (Optional) Provide a name of the project.
     sweep_id = wandb.sweep(sweep=sweep_configuration)
